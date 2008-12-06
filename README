@@ -5,41 +5,33 @@ A slice for the Merb framework that enables user-specific CSS.
 
 Instructions for installation:
 
-file: config/init.rb
+ - file: config/init.rb
+  # add the slice as a regular dependency
+  dependency 'merb_usercss'
 
-# add the slice as a regular dependency
 
-dependency 'merb_usercss'
+  # optionally change the way we find a user's custom css
 
-# if needed, configure which slices to load and in which order
+  Merb::BootLoader.before_app_loads do
+    Merb::Slices::config[:merb_usercss][:user_block] = lambda do |id|
+      u = User.find(id); u ? u.custom_css : ".user {}" }
+    end  
+  end
 
-Merb::Plugins.config[:merb_slices] = { :queue => ["MerbUsercss", ...] }
+ - file: config/router.rb
 
-# optionally configure the plugins in a before_app_loads callback
+  # example: /merb_usercss/usercss/:id
+  add_slice(:MerbUsercss)
 
-Merb::BootLoader.before_app_loads do
-  Merb::Slices::config[:merb_usercss][:user_block] = lambda do |id|
-    u = User.find(id); u ? u.custom_css : ".user {}" }
-  end  
-end
+  # example: /foo/usercss/:id
+  add_slice(:MerbUsercss, 'foo') # same as :path => 'foo'
 
-file: config/router.rb
+  # example: /usercss/:id
+  slice(:MerbUsercss)
 
-# example: /merb_usercss/usercss/:id
+ - file: app/views/layout/application.html.erb (or other layout)
+  <%= stylesheet_include_tag(slice_url(:merb_usercss, :show, current_user)) if current_user %>
 
-add_slice(:MerbUsercss)
-
-# example: /foo/usercss/:id
-
-add_slice(:MerbUsercss, 'foo') # same as :path => 'foo'
-
-# example: /:lang/usercss/:id
-
-add_slice(:MerbUsercss, :path => ':lang')
-
-# example: /usercss/:id
-
-slice(:MerbUsercss)
 
 Normally you should also run the following rake task:
 

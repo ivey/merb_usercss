@@ -59,13 +59,14 @@ if defined?(Merb::Plugins)
     # @note prefix your named routes with :merb_usercss_
     #   to avoid potential conflicts with global named routes.
     def self.setup_router(scope)
-      scope.match('/usercss/:id').to(:controller => 'main', :action => 'show', :format => 'css')
+      scope.match('/usercss/:id').to(:controller => 'main', :action => 'show', :format => 'css').
+        name(:show)
     end
 
     def self.css_for_user(id)
       Merb::Slices::config[:merb_usercss][:user_block].call(id)
     end
-    
+
   end
   
   # Setup the slice layout for MerbUsercss
